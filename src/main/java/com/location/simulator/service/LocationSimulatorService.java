@@ -1,10 +1,13 @@
 package com.location.simulator.service;
 
 import com.location.simulator.constants.ApiConstants;
-import com.location.simulator.model.GeoLocationApiResponse;
+import com.location.simulator.model.GeoLocationResponse;
 import com.location.simulator.model.LocationSimulatorRequestModel;
+import com.location.simulator.model.Route;
 import com.location.simulator.utils.PropertiesUtil;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,8 +33,10 @@ public class LocationSimulatorService {
     pathVariables.put(ApiConstants.ORIGIN, origin);
     String url = propertiesUtil.getGeoLocationBaseApi().buildAndExpand(pathVariables).toUriString();
     Object object  = new Object();
+    GeoLocationResponse geoLocationResponse = new GeoLocationResponse();
     try {
-      GeoLocationApiResponse geoLocationApiResponse = restTemplate.getForObject(url, GeoLocationApiResponse.class);
+       object= restTemplate.getForObject(url, Object.class);
+       geoLocationResponse.setRoutes((Route[]) ((LinkedHashMap)object).get("routes"));
     }catch (Exception e) {
       log.error(e.getMessage());
     }

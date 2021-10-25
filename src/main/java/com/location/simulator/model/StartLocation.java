@@ -1,20 +1,20 @@
 
 package com.location.simulator.model;
 
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Getter
+@Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StartLocation {
 
 
     private Double lat;
 
     private Double lng;
-
 
 }
