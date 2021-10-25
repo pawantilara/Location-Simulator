@@ -56,12 +56,10 @@ public class PropertiesUtil {
   }
 
   public static ArrayList<LatLngsModel> getLocations(int interval, double azimuth, LatLngsModel start,
-                                                     LatLngsModel end) {
+                                                     LatLngsModel end, double d) {
 
 
-    double d = getPathLength(start, end);
-    int totalDistance = (int) d;
-    int dist = (int) d / interval;
+    int totalDistance = (int)d * 1000; // convert Km into m
     int coveredDist = interval;
     ArrayList<LatLngsModel> coords = new ArrayList<>();
     coords.add(new LatLngsModel(start.getLats(), start.getLangs()));
@@ -74,17 +72,5 @@ public class PropertiesUtil {
 
     return coords;
 
-  }
-  public static double getPathLength(LatLngsModel start, LatLngsModel end) {
-    double lat1Rads = Math.toRadians(start.getLats());
-    double lat2Rads = Math.toRadians(end.getLats());
-    double deltaLat = Math.toRadians(end.getLats() - start.getLats());
-
-    double deltaLng = Math.toRadians(end.getLangs() - start.getLangs());
-    double a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2)
-            + Math.cos(lat1Rads) * Math.cos(lat2Rads) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
-    double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    double d = RADIUS_OF_EARTH * c;
-    return d;
   }
 }

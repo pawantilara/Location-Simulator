@@ -29,7 +29,7 @@ public class LocationSimulatorService {
   PropertiesUtil propertiesUtil;
 
 
-  public Object getLocationDetails(LocationSimulatorRequestModel locationSimulatorRequestModel) {
+  public ArrayList<LatLngsModel>  getLocationDetails(LocationSimulatorRequestModel locationSimulatorRequestModel) {
     String destination = locationSimulatorRequestModel.getDestination().getLats() + "," + locationSimulatorRequestModel.getDestination().getLangs();
     String origin = locationSimulatorRequestModel.getOrigin().getLats() + "," + locationSimulatorRequestModel.getOrigin().getLangs();
     String Key = ApiConstants.API_KEY;
@@ -38,30 +38,27 @@ public class LocationSimulatorService {
     pathVariables.put(ApiConstants.KEY, Key);
     pathVariables.put(ApiConstants.ORIGIN, origin);
     String url = propertiesUtil.getGeoLocationBaseApi().buildAndExpand(pathVariables).toUriString();
-    Object object = new Object();
+    Object object;
     LocationSimulatorResponseModel locationSimulatorResponseModel = new LocationSimulatorResponseModel();
+    ArrayList<LatLngsModel> cords = new ArrayList<>();
     try {
       object = restTemplate.getForObject(url, Object.class);
       Gson gson = new Gson();
       String json = gson.toJson(object);
       JsonObject convertedObject = new Gson().fromJson(json, JsonObject.class);
-//      JsonElement routes= convertedObject.get("routes");//get(0).get("legs").get(0).get("distance").get("text");
-//      String x = "";
-//      List<Object> routeList = routes.get(0);
-//      JsonElement lat = position.get("lat");
-//      JsonElement lng = position.get("lng");
-//
-//      latLongList.add(lat.getAsDouble());
-//      latLongList.add(lng.getAsDouble());
+      JsonObject routesObject = (JsonObject) convertedObject.getAsJsonArray("routes").get(0);
+      JsonObject legsObject = (JsonObject) routesObject.getAsJsonArray("legs").get(0);
+      JsonObject distance = (JsonObject) legsObject.get("distance");
+      JsonElement text = distance.get("text");
+      String totalDistance = text.getAsString();
+      Double value = Double.parseDouble(totalDistance.replaceAll("km", ""));
       double azimuth = propertiesUtil.calculateBearing(locationSimulatorRequestModel);
-      //System.out.println(azimuth);
-      ArrayList<LatLngsModel> cords = propertiesUtil.getLocations(50, azimuth, locationSimulatorRequestModel.getOrigin(), locationSimulatorRequestModel.getDestination());
+       cords = propertiesUtil.getLocations(50, azimuth, locationSimulatorRequestModel.getOrigin(), locationSimulatorRequestModel.getDestination(), value);
       locationSimulatorResponseModel.setLatLngsModelList(cords);
-
     } catch (Exception e) {
       log.error(e.getMessage());
     }
-    return object;
+    return cords;
   }
 }
 
